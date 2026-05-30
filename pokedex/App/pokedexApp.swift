@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct pokedexApp: App {
+    private let container = AppContainer.makeDefault()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(container: container)
         }
     }
 }

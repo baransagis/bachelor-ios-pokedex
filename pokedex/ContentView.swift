@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    let container: AppContainer
+
     var body: some View {
         NavigationStack {
-            ListScreen()
+            ListScreen(repository: container.pokedexRepository)
         }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(container: .makeDefault())
 }

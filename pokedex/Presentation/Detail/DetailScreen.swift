@@ -3,6 +3,7 @@ import SwiftUI
 struct DetailScreen: View {
     let id: Int
     @StateObject private var viewModel: DetailViewModel
+    @Environment(\.colorScheme) private var colorScheme
 
     init(id: Int, repository: PokedexRepository) {
         self.id = id
@@ -41,7 +42,8 @@ struct DetailScreen: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("Detail")
-                    .font(.headline)
+                    .font(PokedexTheme.Typography.toolbarTitle)
+                    .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
             }
         }
     }

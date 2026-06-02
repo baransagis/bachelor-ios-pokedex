@@ -1,41 +1,33 @@
 import Foundation
 import Combine
 
+@MainActor
 final class ListViewModel: ObservableObject {
     @Published private(set) var isLoading = false
-    @Published private(set) var jsonText = "No list data loaded yet."
-    @Published private(set) var errorText: String?
+    @Published private(set) var pokemonList: [PokemonListItemDTO] = []
 
     private let repository: PokedexRepository
+    private var hasLoaded = false
 
     init(repository: PokedexRepository) {
         self.repository = repository
     }
 
     func loadPokemon() async {
-        await MainActor.run {
-            isLoading = true
-            errorText = nil
+        guard !hasLoaded else {
+            return
         }
+
+        hasLoaded = true
+        isLoading = true
 
         do {
             let pokemon = try await repository.loadPokemonList()
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let data = try encoder.encode(pokemon)
-            let jsonText = String(decoding: data, as: UTF8.self)
-
-            await MainActor.run {
-                self.jsonText = jsonText
-                self.isLoading = false
-            }
+            pokemonList = pokemon
         } catch {
-            let errorText = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-
-            await MainActor.run {
-                self.errorText = errorText
-                self.isLoading = false
-            }
+            debugPrint("Failed to load Pokemon list: \(error)")
         }
+
+        isLoading = false
     }
 }

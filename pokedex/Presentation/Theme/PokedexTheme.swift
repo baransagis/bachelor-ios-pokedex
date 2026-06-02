@@ -19,6 +19,35 @@ enum PokedexTheme {
             colorScheme == .dark ? Color(hex: 0xC6C6CD) : Color(hex: 0x45464C)
         }
 
+        static func cardBackground(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark ? Color(hex: 0x333637) : Color(hex: 0xE1E3E4)
+        }
+
+        static func abilityChipBackground(for colorScheme: ColorScheme) -> Color {
+            cardBackground(for: colorScheme)
+        }
+
+        static func statTrack(for colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark ? Color(hex: 0x2A2D2F) : Color(hex: 0xF3F4F6)
+        }
+
+        static func statColor(_ stat: Stat) -> Color {
+            switch stat {
+            case .hp:
+                Color(hex: 0xEF5350)
+            case .attack:
+                Color(hex: 0xFFA726)
+            case .defense:
+                Color(hex: 0xFFD54F)
+            case .specialAttack:
+                Color(hex: 0x42A5F5)
+            case .specialDefense:
+                Color(hex: 0x66BB6A)
+            case .speed:
+                Color(hex: 0xAB47BC)
+            }
+        }
+
         static func typeColor(for type: String, colorScheme: ColorScheme) -> Color {
             switch type.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
             case "normal":
@@ -69,9 +98,17 @@ enum PokedexTheme {
         static let listNumber = Font.custom("Inter", size: 24, relativeTo: .title2).weight(.semibold)
         static let listTitle = Font.custom("Inter", size: 20, relativeTo: .title3).weight(.semibold)
         static let typeChip = Font.custom("Inter", size: 14, relativeTo: .subheadline).weight(.semibold)
+        static let detailBody = Font.custom("Inter", size: 16, relativeTo: .body)
+        static let detailSectionTitle = Font.custom("Inter", size: 20, relativeTo: .title3).weight(.semibold)
+        static let detailAttributeLabel = Font.custom("Inter", size: 16, relativeTo: .headline).weight(.semibold)
+        static let detailAttributeValue = Font.custom("Inter", size: 20, relativeTo: .title3).weight(.semibold)
+        static let abilityChip = Font.custom("Inter", size: 16, relativeTo: .headline).weight(.semibold)
+        static let statLabel = Font.custom("Inter", size: 14, relativeTo: .subheadline).weight(.semibold)
     }
 
     enum Assets {
+        static let detailBackground = "detail_background"
+
         static func pokemonSpriteName(for id: Int) -> String {
             "pokemon_\(id)"
         }
@@ -89,6 +126,15 @@ enum PokedexTheme {
             }
         }
     }
+}
+
+enum Stat {
+    case hp
+    case attack
+    case defense
+    case specialAttack
+    case specialDefense
+    case speed
 }
 
 enum PokedexFontRegistrar {

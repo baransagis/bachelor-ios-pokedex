@@ -12,7 +12,7 @@ struct ListScreen: View {
 
     var body: some View {
         ZStack {
-            PokedexListStyle.background(for: colorScheme)
+            PokedexTheme.Colors.background(for: colorScheme)
                 .ignoresSafeArea()
 
             if viewModel.pokemonList.isEmpty {
@@ -28,10 +28,17 @@ struct ListScreen: View {
             await viewModel.loadPokemon()
         }
         .navigationTitle("Pokédex")
-        .navigationBarTitleDisplayMode(.large)
-        .toolbarBackground(PokedexListStyle.background(for: colorScheme), for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(PokedexTheme.Colors.background(for: colorScheme), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarColorScheme(colorScheme, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Pokédex")
+                    .font(PokedexTheme.Typography.toolbarTitle)
+                    .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+            }
+        }
         .navigationDestination(for: Int.self) { id in
             DetailScreen(id: id, repository: repository)
         }
@@ -53,12 +60,12 @@ private struct PokemonListView: View {
 
                     if index != pokemonList.count - 1 {
                         Divider()
-                            .overlay(PokedexListStyle.divider(for: colorScheme))
+                            .overlay(PokedexTheme.Colors.divider(for: colorScheme))
                     }
                 }
             }
         }
-        .background(PokedexListStyle.background(for: colorScheme))
+        .background(PokedexTheme.Colors.background(for: colorScheme))
     }
 }
 
@@ -69,18 +76,18 @@ private struct PokemonRow: View {
     var body: some View {
         NavigationLink(value: pokemon.id) {
             HStack(alignment: .center, spacing: 0) {
-                Text(PokedexListStyle.numberText(for: pokemon.id))
-                    .font(.system(size: 24, weight: .semibold))
+                Text(PokedexTheme.Format.pokemonNumber(id: pokemon.id))
+                    .font(PokedexTheme.Typography.listNumber)
                     .monospacedDigit()
-                    .foregroundStyle(PokedexListStyle.secondaryText(for: colorScheme))
+                    .foregroundStyle(PokedexTheme.Colors.secondaryText(for: colorScheme))
 
                 Spacer()
                     .frame(width: 24)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(pokemon.name)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(PokedexListStyle.primaryText(for: colorScheme))
+                        .font(PokedexTheme.Typography.listTitle)
+                        .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
 
@@ -93,7 +100,7 @@ private struct PokemonRow: View {
 
                 Spacer(minLength: 16)
 
-                Image(PokedexListStyle.spriteName(for: pokemon.id))
+                Image(PokedexTheme.Assets.pokemonSpriteName(for: pokemon.id))
                     .resizable()
                     .interpolation(.none)
                     .scaledToFit()
@@ -102,7 +109,7 @@ private struct PokemonRow: View {
             }
             .padding(16)
             .contentShape(Rectangle())
-            .background(PokedexListStyle.background(for: colorScheme))
+            .background(PokedexTheme.Colors.background(for: colorScheme))
         }
         .buttonStyle(.plain)
     }
@@ -113,10 +120,10 @@ private struct PokemonTypeChip: View {
     let colorScheme: ColorScheme
 
     var body: some View {
-        let color = PokedexListStyle.typeColor(for: type, colorScheme: colorScheme)
+        let color = PokedexTheme.Colors.typeColor(for: type, colorScheme: colorScheme)
 
         Text(type)
-            .font(.system(size: 14, weight: .semibold))
+            .font(PokedexTheme.Typography.typeChip)
             .foregroundStyle(color)
             .lineLimit(1)
             .padding(.horizontal, 6)

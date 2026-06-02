@@ -11,9 +11,14 @@ import SwiftUI
 struct pokedexApp: App {
     private let container = AppContainer.makeDefault()
 
+    init() {
+        PokedexFontRegistrar.registerFonts()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView(container: container)
+                .font(PokedexTheme.Typography.body)
         }
     }
 }

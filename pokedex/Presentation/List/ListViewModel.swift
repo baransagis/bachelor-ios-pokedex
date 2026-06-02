@@ -1,7 +1,6 @@
 import Foundation
 import Combine
 
-@MainActor
 final class ListViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var jsonText = "No list data loaded yet."
@@ -14,19 +13,29 @@ final class ListViewModel: ObservableObject {
     }
 
     func loadPokemon() async {
-        isLoading = true
-        errorText = nil
+        await MainActor.run {
+            isLoading = true
+            errorText = nil
+        }
 
         do {
             let pokemon = try await repository.loadPokemonList()
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             let data = try encoder.encode(pokemon)
-            jsonText = String(decoding: data, as: UTF8.self)
-        } catch {
-            errorText = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-        }
+            let jsonText = String(decoding: data, as: UTF8.self)
 
-        isLoading = false
+            await MainActor.run {
+                self.jsonText = jsonText
+                self.isLoading = false
+            }
+        } catch {
+            let errorText = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+
+            await MainActor.run {
+                self.errorText = errorText
+                self.isLoading = false
+            }
+        }
     }
 }

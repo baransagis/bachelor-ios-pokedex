@@ -1,5 +1,3 @@
-import Foundation
-
 struct AppContainer {
     let pokedexRepository: PokedexRepository
 

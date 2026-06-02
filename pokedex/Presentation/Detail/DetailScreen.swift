@@ -38,7 +38,12 @@ struct DetailScreen: View {
                     .textSelection(.enabled)
             }
         }
-        .navigationTitle("Detail")
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Detail")
+                    .font(.headline)
+            }
+        }
     }
 }
 

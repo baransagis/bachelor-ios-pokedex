@@ -8,7 +8,7 @@ struct PokedexAPIClient: PokedexAPI {
     init(
         session: URLSession = .shared,
         decoder: JSONDecoder = JSONDecoder(),
-        baseURLString: String = "http://192.168.188.34:8080"
+        baseURLString: String = "http://127.0.0.1:8080"
     ) {
         self.session = session
         self.decoder = decoder

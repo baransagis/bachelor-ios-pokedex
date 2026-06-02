@@ -38,7 +38,12 @@ struct ListScreen: View {
                     .textSelection(.enabled)
             }
         }
-        .navigationTitle("Pokedex")
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Pokedex")
+                    .font(.headline)
+            }
+        }
         .navigationDestination(for: Int.self) { id in
             DetailScreen(id: id, repository: repository)
         }

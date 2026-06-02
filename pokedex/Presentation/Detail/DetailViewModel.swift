@@ -1,41 +1,32 @@
 import Foundation
 import Combine
 
+@MainActor
 final class DetailViewModel: ObservableObject {
     @Published private(set) var isLoading = false
-    @Published private(set) var jsonText = "No detail data loaded yet."
-    @Published private(set) var errorText: String?
+    @Published private(set) var pokemon: PokemonDetailDTO?
 
     private let repository: PokedexRepository
+    private var loadedId: Int?
 
     init(repository: PokedexRepository) {
         self.repository = repository
     }
 
     func loadPokemonDetail(id: Int) async {
-        await MainActor.run {
-            isLoading = true
-            errorText = nil
+        guard loadedId != id else {
+            return
         }
+
+        loadedId = id
+        isLoading = true
 
         do {
-            let pokemon = try await repository.loadPokemonDetail(id: id)
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let data = try encoder.encode(pokemon)
-            let jsonText = String(decoding: data, as: UTF8.self)
-
-            await MainActor.run {
-                self.jsonText = jsonText
-                self.isLoading = false
-            }
+            pokemon = try await repository.loadPokemonDetail(id: id)
         } catch {
-            let errorText = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-
-            await MainActor.run {
-                self.errorText = errorText
-                self.isLoading = false
-            }
+            debugPrint("Failed to load Pokemon detail: \(error)")
         }
+
+        isLoading = false
     }
 }

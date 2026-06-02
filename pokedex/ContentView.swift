@@ -8,17 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    let container: AppContainer
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            ListScreen(repository: container.pokedexRepository)
         }
-        .padding()
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(container: .makeDefault())
 }

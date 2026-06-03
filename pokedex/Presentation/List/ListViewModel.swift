@@ -42,11 +42,17 @@ final class ListViewModel: ObservableObject {
             return
         }
 
-        observationTask = Task { [repository] in
+        observationTask = Task { [weak self, repository] in
             let pokemonStream = repository.observePokemonList()
 
             for await pokemon in pokemonStream {
-                pokemonList = pokemon
+                await MainActor.run {
+                    self?.pokemonList = pokemon
+                }
+            }
+
+            await MainActor.run {
+                self?.observationTask = nil
             }
         }
     }

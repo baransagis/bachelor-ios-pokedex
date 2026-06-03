@@ -134,7 +134,7 @@ private struct PokemonTypeChip: View {
 
 #Preview {
     NavigationStack {
-        ListScreen(repository: PokedexRepositoryImpl(api: PokedexAPIClient()))
+        ListScreen(repository: AppContainer.makeDefault().pokedexRepository)
     }
 }
 

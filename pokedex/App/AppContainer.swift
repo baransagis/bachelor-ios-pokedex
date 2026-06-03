@@ -1,9 +1,13 @@
+import SwiftData
+
 struct AppContainer {
     let pokedexRepository: PokedexRepository
 
     static func makeDefault() -> AppContainer {
         let apiClient = PokedexAPIClient()
-        let repository = PokedexRepositoryImpl(api: apiClient)
+        let modelContainer = try! ModelContainer(for: PokemonListItemEntity.self)
+        let localDataSource = SwiftDataPokemonListLocalDataSource(modelContainer: modelContainer)
+        let repository = PokedexRepositoryImpl(api: apiClient, pokemonListLocalDataSource: localDataSource)
         return AppContainer(pokedexRepository: repository)
     }
 }

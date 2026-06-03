@@ -9,11 +9,13 @@ actor SwiftDataPokemonListLocalDataSource: PokemonListLocalDataSource {
         AsyncStream { continuation in
             let id = UUID()
 
-            Task {
+            let addTask = Task {
                 await self.addContinuation(continuation, id: id)
             }
 
             continuation.onTermination = { _ in
+                addTask.cancel()
+
                 Task {
                     await self.removeContinuation(id: id)
                 }
@@ -67,6 +69,10 @@ actor SwiftDataPokemonListLocalDataSource: PokemonListLocalDataSource {
         _ continuation: AsyncStream<[PokemonListItemDTO]>.Continuation,
         id: UUID
     ) {
+        guard !Task.isCancelled else {
+            return
+        }
+
         continuations[id] = continuation
 
         do {

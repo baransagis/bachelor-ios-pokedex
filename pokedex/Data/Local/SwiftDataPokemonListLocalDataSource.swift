@@ -40,11 +40,15 @@ actor SwiftDataPokemonListLocalDataSource: PokemonListLocalDataSource {
     }
 
     func insertPokemon(_ pokemon: [PokemonListItemDTO]) async throws {
+        var existingPokemonById = try fetchExistingPokemonById()
+
         for item in pokemon {
-            if let existingItem = try fetchPokemon(id: item.id) {
+            if let existingItem = existingPokemonById[item.id] {
                 existingItem.update(with: item)
             } else {
-                modelContext.insert(PokemonListItemEntity(dto: item))
+                let newItem = PokemonListItemEntity(dto: item)
+                modelContext.insert(newItem)
+                existingPokemonById[item.id] = newItem
             }
         }
 
@@ -52,13 +56,11 @@ actor SwiftDataPokemonListLocalDataSource: PokemonListLocalDataSource {
         try publishPokemonList()
     }
 
-    private func fetchPokemon(id: Int) throws -> PokemonListItemEntity? {
-        var descriptor = FetchDescriptor<PokemonListItemEntity>(
-            predicate: #Predicate { $0.id == id }
-        )
-        descriptor.fetchLimit = 1
+    private func fetchExistingPokemonById() throws -> [Int: PokemonListItemEntity] {
+        let descriptor = FetchDescriptor<PokemonListItemEntity>()
+        let existingPokemon = try modelContext.fetch(descriptor)
 
-        return try modelContext.fetch(descriptor).first
+        return Dictionary(uniqueKeysWithValues: existingPokemon.map { ($0.id, $0) })
     }
 
     private func addContinuation(

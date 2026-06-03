@@ -8,12 +8,19 @@ final class ListViewModel: ObservableObject {
 
     private let repository: PokedexRepository
     private var hasLoaded = false
+    private var observationTask: Task<Void, Never>?
 
     init(repository: PokedexRepository) {
         self.repository = repository
     }
 
+    deinit {
+        observationTask?.cancel()
+    }
+
     func loadPokemon() async {
+        observePokemonList()
+
         guard !hasLoaded else {
             return
         }
@@ -22,12 +29,25 @@ final class ListViewModel: ObservableObject {
         isLoading = true
 
         do {
-            let pokemon = try await repository.loadPokemonList()
-            pokemonList = pokemon
+            _ = try await repository.loadPokemonList()
         } catch {
             debugPrint("Failed to load Pokemon list: \(error)")
         }
 
         isLoading = false
+    }
+
+    private func observePokemonList() {
+        guard observationTask == nil else {
+            return
+        }
+
+        observationTask = Task { [repository] in
+            let pokemonStream = repository.observePokemonList()
+
+            for await pokemon in pokemonStream {
+                pokemonList = pokemon
+            }
+        }
     }
 }

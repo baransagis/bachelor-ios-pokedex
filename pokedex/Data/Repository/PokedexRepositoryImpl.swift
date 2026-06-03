@@ -9,6 +9,10 @@ struct PokedexRepositoryImpl: PokedexRepository {
         self.pokemonListLocalDataSource = pokemonListLocalDataSource
     }
 
+    func observePokemonList() -> AsyncStream<[PokemonListItemDTO]> {
+        pokemonListLocalDataSource.observePokemonList()
+    }
+
     func loadPokemonList() async throws -> [PokemonListItemDTO] {
         if try await pokemonListLocalDataSource.pokemonCount() == 0 {
             let pokemon = try await api.getPokemonList()

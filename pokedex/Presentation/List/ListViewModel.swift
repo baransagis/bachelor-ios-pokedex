@@ -1,13 +1,17 @@
 import Foundation
-import Combine
+import Observation
 
 @MainActor
-final class ListViewModel: ObservableObject {
-    @Published private(set) var isLoading = false
-    @Published private(set) var pokemonList: [PokemonListItemDTO] = []
+@Observable
+final class ListViewModel {
+    private(set) var isLoading = false
+    private(set) var pokemonList: [PokemonListItemDTO] = []
 
+    @ObservationIgnored
     private let repository: PokedexRepository
+    @ObservationIgnored
     private var hasLoaded = false
+    @ObservationIgnored
     private var observationTask: Task<Void, Never>?
 
     init(repository: PokedexRepository) {

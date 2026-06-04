@@ -1,12 +1,15 @@
 import Foundation
-import Combine
+import Observation
 
 @MainActor
-final class DetailViewModel: ObservableObject {
-    @Published private(set) var isLoading = false
-    @Published private(set) var pokemon: PokemonDetailDTO?
+@Observable
+final class DetailViewModel {
+    private(set) var isLoading = false
+    private(set) var pokemon: PokemonDetailDTO?
 
+    @ObservationIgnored
     private let repository: PokedexRepository
+    @ObservationIgnored
     private var loadedId: Int?
 
     init(repository: PokedexRepository) {

@@ -2,11 +2,11 @@ import SwiftUI
 
 struct ListScreen: View {
     private let repository: PokedexRepository
-    @StateObject private var viewModel: ListViewModel
+    @State private var viewModel: ListViewModel
 
     init(repository: PokedexRepository) {
         self.repository = repository
-        _viewModel = StateObject(wrappedValue: ListViewModel(repository: repository))
+        _viewModel = State(initialValue: ListViewModel(repository: repository))
     }
 
     var body: some View {

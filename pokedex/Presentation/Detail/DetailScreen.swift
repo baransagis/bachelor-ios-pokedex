@@ -2,11 +2,11 @@ import SwiftUI
 
 struct DetailScreen: View {
     let id: Int
-    @StateObject private var viewModel: DetailViewModel
+    @State private var viewModel: DetailViewModel
 
     init(id: Int, repository: PokedexRepository) {
         self.id = id
-        _viewModel = StateObject(wrappedValue: DetailViewModel(repository: repository))
+        _viewModel = State(initialValue: DetailViewModel(repository: repository))
     }
 
     var body: some View {

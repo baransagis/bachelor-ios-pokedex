@@ -29,16 +29,17 @@ final class ListViewModel {
             return
         }
 
-        hasLoaded = true
         isLoading = true
+        defer {
+            isLoading = false
+        }
 
         do {
             _ = try await repository.loadPokemonList()
+            hasLoaded = true
         } catch {
             debugPrint("Failed to load Pokemon list: \(error)")
         }
-
-        isLoading = false
     }
 
     private func observePokemonList() {

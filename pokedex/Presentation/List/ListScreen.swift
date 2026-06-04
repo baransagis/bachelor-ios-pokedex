@@ -1,7 +1,9 @@
+import SwiftData
 import SwiftUI
 
 struct ListScreen: View {
     private let repository: PokedexRepository
+    @Query(sort: \PokemonListItemEntity.id) private var pokemonList: [PokemonListItemEntity]
     @State private var viewModel: ListViewModel
 
     init(repository: PokedexRepository) {
@@ -14,10 +16,10 @@ struct ListScreen: View {
             PokedexTheme.Colors.background
                 .ignoresSafeArea()
 
-            if viewModel.pokemonList.isEmpty {
+            if pokemonList.isEmpty {
                 ProgressView()
             } else {
-                PokemonListView(pokemonList: viewModel.pokemonList)
+                PokemonListView(pokemonList: pokemonList)
             }
         }
         .task {
@@ -41,7 +43,7 @@ struct ListScreen: View {
 }
 
 private struct PokemonListView: View {
-    let pokemonList: [PokemonListItemDTO]
+    let pokemonList: [PokemonListItemEntity]
 
     var body: some View {
         ScrollView {
@@ -61,7 +63,7 @@ private struct PokemonListView: View {
 }
 
 private struct PokemonRow: View {
-    let pokemon: PokemonListItemDTO
+    let pokemon: PokemonListItemEntity
 
     var body: some View {
         NavigationLink(value: pokemon.id) {
@@ -122,23 +124,25 @@ private struct PokemonTypeChip: View {
 }
 
 #Preview {
+    let container = AppContainer.makeDefault()
     NavigationStack {
-        ListScreen(repository: AppContainer.makeDefault().pokedexRepository)
+        ListScreen(repository: container.pokedexRepository)
     }
+    .modelContainer(container.modelContainer)
 }
 
 #Preview("Loaded dark") {
     NavigationStack {
         PokemonListView(
             pokemonList: [
-                PokemonListItemDTO(id: 1, name: "Bisasam", types: ["Pflanze", "Gift"]),
-                PokemonListItemDTO(id: 2, name: "Bisaknosp", types: ["Pflanze", "Gift"]),
-                PokemonListItemDTO(id: 3, name: "Bisaflor", types: ["Pflanze", "Gift"]),
-                PokemonListItemDTO(id: 4, name: "Glumanda", types: ["Feuer"]),
-                PokemonListItemDTO(id: 5, name: "Glutexo", types: ["Feuer"]),
-                PokemonListItemDTO(id: 6, name: "Glurak", types: ["Feuer", "Flug"]),
-                PokemonListItemDTO(id: 7, name: "Schiggy", types: ["Wasser"]),
-                PokemonListItemDTO(id: 8, name: "Schillok", types: ["Wasser"])
+                PokemonListItemEntity(id: 1, name: "Bisasam", types: ["Pflanze", "Gift"]),
+                PokemonListItemEntity(id: 2, name: "Bisaknosp", types: ["Pflanze", "Gift"]),
+                PokemonListItemEntity(id: 3, name: "Bisaflor", types: ["Pflanze", "Gift"]),
+                PokemonListItemEntity(id: 4, name: "Glumanda", types: ["Feuer"]),
+                PokemonListItemEntity(id: 5, name: "Glutexo", types: ["Feuer"]),
+                PokemonListItemEntity(id: 6, name: "Glurak", types: ["Feuer", "Flug"]),
+                PokemonListItemEntity(id: 7, name: "Schiggy", types: ["Wasser"]),
+                PokemonListItemEntity(id: 8, name: "Schillok", types: ["Wasser"])
             ]
         )
         .navigationTitle("Pokédex")
@@ -150,9 +154,9 @@ private struct PokemonTypeChip: View {
     NavigationStack {
         PokemonListView(
             pokemonList: [
-                PokemonListItemDTO(id: 1, name: "Bisasam", types: ["Pflanze", "Gift"]),
-                PokemonListItemDTO(id: 4, name: "Glumanda", types: ["Feuer"]),
-                PokemonListItemDTO(id: 7, name: "Schiggy", types: ["Wasser"])
+                PokemonListItemEntity(id: 1, name: "Bisasam", types: ["Pflanze", "Gift"]),
+                PokemonListItemEntity(id: 4, name: "Glumanda", types: ["Feuer"]),
+                PokemonListItemEntity(id: 7, name: "Schiggy", types: ["Wasser"])
             ]
         )
         .navigationTitle("Pokédex")

@@ -5,6 +5,7 @@
 //  Created by Baran Alexander Sagis on 27.05.26.
 //
 
+import SwiftData
 import SwiftUI
 
 struct ContentView: View {
@@ -18,5 +19,7 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(container: .makeDefault())
+    let container = AppContainer.makeDefault()
+    ContentView(container: container)
+        .modelContainer(container.modelContainer)
 }

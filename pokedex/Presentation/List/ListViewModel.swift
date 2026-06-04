@@ -23,7 +23,7 @@ final class ListViewModel {
     }
 
     func loadPokemon() async {
-        observePokemonList()
+        await observePokemonList()
 
         guard !hasLoaded else {
             return
@@ -35,29 +35,41 @@ final class ListViewModel {
         }
 
         do {
-            pokemonList = try await repository.loadPokemonList()
+            _ = try await repository.loadPokemonList()
             hasLoaded = true
         } catch {
             debugPrint("Failed to load Pokemon list: \(error)")
         }
     }
 
-    private func observePokemonList() {
+    private func observePokemonList() async {
         guard observationTask == nil else {
             return
         }
 
-        observationTask = Task { [weak self, repository] in
-            let pokemonStream = repository.observePokemonList()
+        await withCheckedContinuation { continuation in
+            observationTask = Task { [weak self, repository] in
+                var didObserveInitialSnapshot = false
+                let pokemonStream = repository.observePokemonList()
 
-            for await pokemon in pokemonStream {
-                await MainActor.run {
-                    self?.pokemonList = pokemon
+                for await pokemon in pokemonStream {
+                    await MainActor.run {
+                        self?.pokemonList = pokemon
+
+                        if !didObserveInitialSnapshot {
+                            didObserveInitialSnapshot = true
+                            continuation.resume()
+                        }
+                    }
                 }
-            }
 
-            await MainActor.run {
-                self?.observationTask = nil
+                await MainActor.run {
+                    if !didObserveInitialSnapshot {
+                        continuation.resume()
+                    }
+
+                    self?.observationTask = nil
+                }
             }
         }
     }

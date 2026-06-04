@@ -35,7 +35,7 @@ final class ListViewModel {
         }
 
         do {
-            _ = try await repository.loadPokemonList()
+            pokemonList = try await repository.loadPokemonList()
             hasLoaded = true
         } catch {
             debugPrint("Failed to load Pokemon list: \(error)")

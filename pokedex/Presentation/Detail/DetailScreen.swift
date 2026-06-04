@@ -2,21 +2,20 @@ import SwiftUI
 
 struct DetailScreen: View {
     let id: Int
-    @StateObject private var viewModel: DetailViewModel
-    @Environment(\.colorScheme) private var colorScheme
+    @State private var viewModel: DetailViewModel
 
     init(id: Int, repository: PokedexRepository) {
         self.id = id
-        _viewModel = StateObject(wrappedValue: DetailViewModel(repository: repository))
+        _viewModel = State(initialValue: DetailViewModel(repository: repository))
     }
 
     var body: some View {
         ZStack {
-            PokedexTheme.Colors.background(for: colorScheme)
+            PokedexTheme.Colors.background
                 .ignoresSafeArea()
 
             if let pokemon = viewModel.pokemon {
-                DetailContent(pokemon: pokemon, colorScheme: colorScheme)
+                DetailContent(pokemon: pokemon)
             } else {
                 ProgressView()
             }
@@ -26,14 +25,13 @@ struct DetailScreen: View {
         }
         .navigationTitle(toolbarTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(PokedexTheme.Colors.background(for: colorScheme), for: .navigationBar)
+        .toolbarBackground(PokedexTheme.Colors.background, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(colorScheme, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(toolbarTitle)
                     .font(PokedexTheme.Typography.toolbarTitle)
-                    .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+                    .foregroundStyle(PokedexTheme.Colors.primaryText)
             }
         }
     }
@@ -49,7 +47,6 @@ struct DetailScreen: View {
 
 private struct DetailContent: View {
     let pokemon: PokemonDetailDTO
-    let colorScheme: ColorScheme
 
     var body: some View {
         ScrollView {
@@ -59,34 +56,34 @@ private struct DetailContent: View {
                 Spacer()
                     .frame(height: 8)
 
-                TypeChips(types: pokemon.types, colorScheme: colorScheme)
+                TypeChips(types: pokemon.types)
 
                 Spacer()
                     .frame(height: 32)
 
                 Text(pokemon.description)
                     .font(PokedexTheme.Typography.detailBody)
-                    .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+                    .foregroundStyle(PokedexTheme.Colors.primaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Spacer()
                     .frame(height: 32)
 
-                AttributeGrid(pokemon: pokemon, colorScheme: colorScheme)
+                AttributeGrid(pokemon: pokemon)
 
                 Spacer()
                     .frame(height: 32)
 
-                AbilitiesSection(abilities: pokemon.abilities, colorScheme: colorScheme)
+                AbilitiesSection(abilities: pokemon.abilities)
 
                 Spacer()
                     .frame(height: 32)
 
-                BaseStatsSection(baseStats: pokemon.baseStats, colorScheme: colorScheme)
+                BaseStatsSection(baseStats: pokemon.baseStats)
             }
             .padding(16)
         }
-        .background(PokedexTheme.Colors.background(for: colorScheme))
+        .background(PokedexTheme.Colors.background)
     }
 }
 
@@ -115,7 +112,6 @@ private struct PokemonHero: View {
 
 private struct TypeChips: View {
     let types: [String]
-    let colorScheme: ColorScheme
 
     var body: some View {
         HStack(spacing: 8) {
@@ -126,7 +122,7 @@ private struct TypeChips: View {
                     .lineLimit(1)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(PokedexTheme.Colors.typeColor(for: type, colorScheme: colorScheme), in: Capsule())
+                    .background(PokedexTheme.Colors.typeColor(for: type), in: Capsule())
             }
         }
         .frame(maxWidth: .infinity)
@@ -135,16 +131,15 @@ private struct TypeChips: View {
 
 private struct AttributeGrid: View {
     let pokemon: PokemonDetailDTO
-    let colorScheme: ColorScheme
 
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
-                AttributeCard(label: "Größe", value: String(format: "%.1fm", pokemon.heightMeters), colorScheme: colorScheme)
-                AttributeCard(label: "Gewicht", value: String(format: "%.1fkg", pokemon.weightKg), colorScheme: colorScheme)
+                AttributeCard(label: "Größe", value: String(format: "%.1fm", pokemon.heightMeters))
+                AttributeCard(label: "Gewicht", value: String(format: "%.1fkg", pokemon.weightKg))
             }
 
-            AttributeCard(label: "Kategorie", value: pokemon.genus, colorScheme: colorScheme)
+            AttributeCard(label: "Kategorie", value: pokemon.genus)
         }
     }
 }
@@ -152,47 +147,45 @@ private struct AttributeGrid: View {
 private struct AttributeCard: View {
     let label: String
     let value: String
-    let colorScheme: ColorScheme
 
     var body: some View {
         VStack(spacing: 8) {
             Text(label.uppercased())
                 .font(PokedexTheme.Typography.detailAttributeLabel)
-                .foregroundStyle(PokedexTheme.Colors.secondaryText(for: colorScheme))
+                .foregroundStyle(PokedexTheme.Colors.secondaryText)
 
             Text(value)
                 .font(PokedexTheme.Typography.detailAttributeValue)
-                .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+                .foregroundStyle(PokedexTheme.Colors.primaryText)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, minHeight: 82)
         .padding(16)
-        .background(PokedexTheme.Colors.cardBackground(for: colorScheme), in: RoundedRectangle(cornerRadius: 12))
+        .background(PokedexTheme.Colors.cardBackground, in: RoundedRectangle(cornerRadius: 12))
     }
 }
 
 private struct AbilitiesSection: View {
     let abilities: [String]
-    let colorScheme: ColorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionHeader("Fähigkeiten", colorScheme: colorScheme)
+            SectionHeader("Fähigkeiten")
 
             if abilities.isEmpty {
                 Text("Keine Fähigkeiten vorhanden")
                     .font(PokedexTheme.Typography.body)
-                    .foregroundStyle(PokedexTheme.Colors.secondaryText(for: colorScheme))
+                    .foregroundStyle(PokedexTheme.Colors.secondaryText)
             } else {
                 FlowLayout(spacing: 4) {
                     ForEach(abilities, id: \.self) { ability in
                         Text(ability)
                             .font(PokedexTheme.Typography.abilityChip)
-                            .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+                            .foregroundStyle(PokedexTheme.Colors.primaryText)
                             .lineLimit(1)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(PokedexTheme.Colors.abilityChipBackground(for: colorScheme), in: Capsule())
+                            .background(PokedexTheme.Colors.abilityChipBackground, in: Capsule())
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -204,22 +197,21 @@ private struct AbilitiesSection: View {
 
 private struct BaseStatsSection: View {
     let baseStats: PokemonBaseStatsDTO
-    let colorScheme: ColorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            SectionHeader("Artenspezifische Stärken", colorScheme: colorScheme)
+            SectionHeader("Artenspezifische Stärken")
 
             Spacer()
                 .frame(height: 16)
 
             VStack(spacing: 16) {
-                StatRow(label: "KP", value: baseStats.hp, stat: .hp, colorScheme: colorScheme)
-                StatRow(label: "ANGRIFF", value: baseStats.attack, stat: .attack, colorScheme: colorScheme)
-                StatRow(label: "VERTEIDIGUNG", value: baseStats.defense, stat: .defense, colorScheme: colorScheme)
-                StatRow(label: "SPEZIAL-ANGRIFF", value: baseStats.specialAttack, stat: .specialAttack, colorScheme: colorScheme)
-                StatRow(label: "SPEZIAL-VERTEIDIGUNG", value: baseStats.specialDefense, stat: .specialDefense, colorScheme: colorScheme)
-                StatRow(label: "INITIATIVE", value: baseStats.speed, stat: .speed, colorScheme: colorScheme)
+                StatRow(label: "KP", value: baseStats.hp, stat: .hp)
+                StatRow(label: "ANGRIFF", value: baseStats.attack, stat: .attack)
+                StatRow(label: "VERTEIDIGUNG", value: baseStats.defense, stat: .defense)
+                StatRow(label: "SPEZIAL-ANGRIFF", value: baseStats.specialAttack, stat: .specialAttack)
+                StatRow(label: "SPEZIAL-VERTEIDIGUNG", value: baseStats.specialDefense, stat: .specialDefense)
+                StatRow(label: "INITIATIVE", value: baseStats.speed, stat: .speed)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -230,7 +222,6 @@ private struct StatRow: View {
     let label: String
     let value: Int
     let stat: Stat
-    let colorScheme: ColorScheme
 
     private var progress: CGFloat {
         min(max(CGFloat(value) / 255, 0), 1)
@@ -241,19 +232,19 @@ private struct StatRow: View {
             HStack {
                 Text(label)
                     .font(PokedexTheme.Typography.statLabel)
-                    .foregroundStyle(PokedexTheme.Colors.secondaryText(for: colorScheme))
+                    .foregroundStyle(PokedexTheme.Colors.secondaryText)
 
                 Spacer()
 
                 Text(value.description)
                     .font(PokedexTheme.Typography.statLabel)
-                    .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+                    .foregroundStyle(PokedexTheme.Colors.primaryText)
             }
 
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(PokedexTheme.Colors.statTrack(for: colorScheme))
+                        .fill(PokedexTheme.Colors.statTrack)
 
                     Capsule()
                         .fill(PokedexTheme.Colors.statColor(stat))
@@ -267,17 +258,15 @@ private struct StatRow: View {
 
 private struct SectionHeader: View {
     let label: String
-    let colorScheme: ColorScheme
 
-    init(_ label: String, colorScheme: ColorScheme) {
+    init(_ label: String) {
         self.label = label
-        self.colorScheme = colorScheme
     }
 
     var body: some View {
         Text(label)
             .font(PokedexTheme.Typography.detailSectionTitle)
-            .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+            .foregroundStyle(PokedexTheme.Colors.primaryText)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -384,8 +373,7 @@ private struct FlowLayout: Layout {
                 description: "Dieses Pokémon trägt von Geburt an einen Samen auf dem Rücken, der mit ihm keimt und wächst.",
                 color: "green",
                 habitat: "grassland"
-            ),
-            colorScheme: .dark
+            )
         )
         .navigationTitle("Bisasam #001")
     }

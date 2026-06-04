@@ -1,27 +1,25 @@
+import SwiftData
 import SwiftUI
 
 struct ListScreen: View {
     private let repository: PokedexRepository
-    @StateObject private var viewModel: ListViewModel
-    @Environment(\.colorScheme) private var colorScheme
+    @Query(sort: \PokemonListItemEntity.id) private var pokemonList: [PokemonListItemEntity]
+    @State private var viewModel: ListViewModel
 
     init(repository: PokedexRepository) {
         self.repository = repository
-        _viewModel = StateObject(wrappedValue: ListViewModel(repository: repository))
+        _viewModel = State(initialValue: ListViewModel(repository: repository))
     }
 
     var body: some View {
         ZStack {
-            PokedexTheme.Colors.background(for: colorScheme)
+            PokedexTheme.Colors.background
                 .ignoresSafeArea()
 
-            if viewModel.pokemonList.isEmpty {
+            if pokemonList.isEmpty {
                 ProgressView()
             } else {
-                PokemonListView(
-                    pokemonList: viewModel.pokemonList,
-                    colorScheme: colorScheme
-                )
+                PokemonListView(pokemonList: pokemonList)
             }
         }
         .task {
@@ -29,14 +27,13 @@ struct ListScreen: View {
         }
         .navigationTitle("Pokédex")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(PokedexTheme.Colors.background(for: colorScheme), for: .navigationBar)
+        .toolbarBackground(PokedexTheme.Colors.background, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(colorScheme, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("Pokédex")
                     .font(PokedexTheme.Typography.toolbarTitle)
-                    .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+                    .foregroundStyle(PokedexTheme.Colors.primaryText)
             }
         }
         .navigationDestination(for: Int.self) { id in
@@ -46,32 +43,27 @@ struct ListScreen: View {
 }
 
 private struct PokemonListView: View {
-    let pokemonList: [PokemonListItemDTO]
-    let colorScheme: ColorScheme
+    let pokemonList: [PokemonListItemEntity]
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(Array(pokemonList.enumerated()), id: \.element.id) { index, pokemon in
-                    PokemonRow(
-                        pokemon: pokemon,
-                        colorScheme: colorScheme
-                    )
+                    PokemonRow(pokemon: pokemon)
 
                     if index != pokemonList.count - 1 {
                         Divider()
-                            .overlay(PokedexTheme.Colors.divider(for: colorScheme))
+                            .overlay(PokedexTheme.Colors.divider)
                     }
                 }
             }
         }
-        .background(PokedexTheme.Colors.background(for: colorScheme))
+        .background(PokedexTheme.Colors.background)
     }
 }
 
 private struct PokemonRow: View {
-    let pokemon: PokemonListItemDTO
-    let colorScheme: ColorScheme
+    let pokemon: PokemonListItemEntity
 
     var body: some View {
         NavigationLink(value: pokemon.id) {
@@ -79,7 +71,7 @@ private struct PokemonRow: View {
                 Text(PokedexTheme.Format.pokemonNumber(id: pokemon.id))
                     .font(PokedexTheme.Typography.listNumber)
                     .monospacedDigit()
-                    .foregroundStyle(PokedexTheme.Colors.secondaryText(for: colorScheme))
+                    .foregroundStyle(PokedexTheme.Colors.secondaryText)
 
                 Spacer()
                     .frame(width: 24)
@@ -87,13 +79,13 @@ private struct PokemonRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(pokemon.name)
                         .font(PokedexTheme.Typography.listTitle)
-                        .foregroundStyle(PokedexTheme.Colors.primaryText(for: colorScheme))
+                        .foregroundStyle(PokedexTheme.Colors.primaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
 
                     HStack(spacing: 4) {
                         ForEach(pokemon.types, id: \.self) { type in
-                            PokemonTypeChip(type: type, colorScheme: colorScheme)
+                            PokemonTypeChip(type: type)
                         }
                     }
                 }
@@ -109,7 +101,7 @@ private struct PokemonRow: View {
             }
             .padding(16)
             .contentShape(Rectangle())
-            .background(PokedexTheme.Colors.background(for: colorScheme))
+            .background(PokedexTheme.Colors.background)
         }
         .buttonStyle(.plain)
     }
@@ -117,10 +109,9 @@ private struct PokemonRow: View {
 
 private struct PokemonTypeChip: View {
     let type: String
-    let colorScheme: ColorScheme
 
     var body: some View {
-        let color = PokedexTheme.Colors.typeColor(for: type, colorScheme: colorScheme)
+        let color = PokedexTheme.Colors.typeColor(for: type)
 
         Text(type)
             .font(PokedexTheme.Typography.typeChip)
@@ -133,25 +124,26 @@ private struct PokemonTypeChip: View {
 }
 
 #Preview {
+    let container = AppContainer.makeDefault()
     NavigationStack {
-        ListScreen(repository: AppContainer.makeDefault().pokedexRepository)
+        ListScreen(repository: container.pokedexRepository)
     }
+    .modelContainer(container.modelContainer)
 }
 
 #Preview("Loaded dark") {
     NavigationStack {
         PokemonListView(
             pokemonList: [
-                PokemonListItemDTO(id: 1, name: "Bisasam", types: ["Pflanze", "Gift"]),
-                PokemonListItemDTO(id: 2, name: "Bisaknosp", types: ["Pflanze", "Gift"]),
-                PokemonListItemDTO(id: 3, name: "Bisaflor", types: ["Pflanze", "Gift"]),
-                PokemonListItemDTO(id: 4, name: "Glumanda", types: ["Feuer"]),
-                PokemonListItemDTO(id: 5, name: "Glutexo", types: ["Feuer"]),
-                PokemonListItemDTO(id: 6, name: "Glurak", types: ["Feuer", "Flug"]),
-                PokemonListItemDTO(id: 7, name: "Schiggy", types: ["Wasser"]),
-                PokemonListItemDTO(id: 8, name: "Schillok", types: ["Wasser"])
-            ],
-            colorScheme: .dark
+                PokemonListItemEntity(id: 1, name: "Bisasam", types: ["Pflanze", "Gift"]),
+                PokemonListItemEntity(id: 2, name: "Bisaknosp", types: ["Pflanze", "Gift"]),
+                PokemonListItemEntity(id: 3, name: "Bisaflor", types: ["Pflanze", "Gift"]),
+                PokemonListItemEntity(id: 4, name: "Glumanda", types: ["Feuer"]),
+                PokemonListItemEntity(id: 5, name: "Glutexo", types: ["Feuer"]),
+                PokemonListItemEntity(id: 6, name: "Glurak", types: ["Feuer", "Flug"]),
+                PokemonListItemEntity(id: 7, name: "Schiggy", types: ["Wasser"]),
+                PokemonListItemEntity(id: 8, name: "Schillok", types: ["Wasser"])
+            ]
         )
         .navigationTitle("Pokédex")
     }
@@ -162,11 +154,10 @@ private struct PokemonTypeChip: View {
     NavigationStack {
         PokemonListView(
             pokemonList: [
-                PokemonListItemDTO(id: 1, name: "Bisasam", types: ["Pflanze", "Gift"]),
-                PokemonListItemDTO(id: 4, name: "Glumanda", types: ["Feuer"]),
-                PokemonListItemDTO(id: 7, name: "Schiggy", types: ["Wasser"])
-            ],
-            colorScheme: .light
+                PokemonListItemEntity(id: 1, name: "Bisasam", types: ["Pflanze", "Gift"]),
+                PokemonListItemEntity(id: 4, name: "Glumanda", types: ["Feuer"]),
+                PokemonListItemEntity(id: 7, name: "Schiggy", types: ["Wasser"])
+            ]
         )
         .navigationTitle("Pokédex")
     }

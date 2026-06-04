@@ -3,33 +3,13 @@ import SwiftUI
 
 enum PokedexTheme {
     enum Colors {
-        static func background(for colorScheme: ColorScheme) -> Color {
-            colorScheme == .dark ? Color(hex: 0x111415) : Color(hex: 0xF8F9FA)
-        }
-
-        static func divider(for colorScheme: ColorScheme) -> Color {
-            colorScheme == .dark ? Color(hex: 0x333637) : Color(hex: 0xE5E7EB)
-        }
-
-        static func primaryText(for colorScheme: ColorScheme) -> Color {
-            colorScheme == .dark ? Color(hex: 0xE1E3E4) : Color(hex: 0x191C1D)
-        }
-
-        static func secondaryText(for colorScheme: ColorScheme) -> Color {
-            colorScheme == .dark ? Color(hex: 0xC6C6CD) : Color(hex: 0x45464C)
-        }
-
-        static func cardBackground(for colorScheme: ColorScheme) -> Color {
-            colorScheme == .dark ? Color(hex: 0x333637) : Color(hex: 0xE1E3E4)
-        }
-
-        static func abilityChipBackground(for colorScheme: ColorScheme) -> Color {
-            cardBackground(for: colorScheme)
-        }
-
-        static func statTrack(for colorScheme: ColorScheme) -> Color {
-            colorScheme == .dark ? Color(hex: 0x2A2D2F) : Color(hex: 0xF3F4F6)
-        }
+        static let background = Color("background")
+        static let divider = Color("divider")
+        static let primaryText = Color("primaryText")
+        static let secondaryText = Color("secondaryText")
+        static let cardBackground = Color("cardBackground")
+        static let abilityChipBackground = cardBackground
+        static let statTrack = Color("statTrack")
 
         static func statColor(_ stat: Stat) -> Color {
             switch stat {
@@ -48,7 +28,7 @@ enum PokedexTheme {
             }
         }
 
-        static func typeColor(for type: String, colorScheme: ColorScheme) -> Color {
+        static func typeColor(for type: String) -> Color {
             switch type.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
             case "normal":
                 Color(hex: 0xA8A77A)
@@ -87,7 +67,7 @@ enum PokedexTheme {
             case "fee":
                 Color(hex: 0xD685AD)
             default:
-                secondaryText(for: colorScheme)
+                secondaryText
             }
         }
     }

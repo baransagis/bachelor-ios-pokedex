@@ -14,7 +14,11 @@ struct DetailScreen: View {
             PokedexTheme.Colors.background
                 .ignoresSafeArea()
 
-            if let pokemon = viewModel.pokemon {
+            if viewModel.isError {
+                ErrorView {
+                    await viewModel.loadPokemonDetail(id: id)
+                }
+            } else if let pokemon = viewModel.pokemon {
                 DetailContent(pokemon: pokemon)
             } else {
                 ProgressView()

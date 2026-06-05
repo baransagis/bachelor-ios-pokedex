@@ -16,10 +16,14 @@ struct ListScreen: View {
             PokedexTheme.Colors.background
                 .ignoresSafeArea()
 
-            if pokemonList.isEmpty {
-                ProgressView()
-            } else {
+            if !pokemonList.isEmpty {
                 PokemonListView(pokemonList: pokemonList)
+            } else if viewModel.isError {
+                ErrorView {
+                    await viewModel.loadPokemon()
+                }
+            } else {
+                ProgressView()
             }
         }
         .task {

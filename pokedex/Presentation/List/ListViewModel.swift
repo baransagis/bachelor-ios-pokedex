@@ -1,11 +1,12 @@
 import Foundation
-import Combine
+import Observation
 
-final class ListViewModel: ObservableObject {
-    @Published private(set) var isLoading = false
-    @Published private(set) var jsonText = "No list data loaded yet."
-    @Published private(set) var errorText: String?
+@MainActor
+@Observable
+final class ListViewModel {
+    private(set) var isError = false
 
+    @ObservationIgnored
     private let repository: PokedexRepository
 
     init(repository: PokedexRepository) {
@@ -13,29 +14,12 @@ final class ListViewModel: ObservableObject {
     }
 
     func loadPokemon() async {
-        await MainActor.run {
-            isLoading = true
-            errorText = nil
-        }
-
         do {
-            let pokemon = try await repository.loadPokemonList()
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let data = try encoder.encode(pokemon)
-            let jsonText = String(decoding: data, as: UTF8.self)
-
-            await MainActor.run {
-                self.jsonText = jsonText
-                self.isLoading = false
-            }
+            try await repository.loadPokemonList()
+            isError = false
         } catch {
-            let errorText = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-
-            await MainActor.run {
-                self.errorText = errorText
-                self.isLoading = false
-            }
+            isError = true
+            debugPrint("Failed to load Pokemon list: \(error)")
         }
     }
 }
